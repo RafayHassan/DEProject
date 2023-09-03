@@ -1,0 +1,53 @@
+{
+  "name": "RetrainPipeline",
+  "properties": {
+    "activities": [
+      {
+        "type": "AzureMLBatchExecution",
+        "typeProperties": {
+          "webServiceOutputs": {
+            "output1": "TrainedModelBlob"
+          },
+          "webServiceInputs": { },
+          "globalParameters": {
+            "Database server name": "[unique].database.windows.net",
+            "Database name": "[unique]",
+            "User name": "[user]",
+            "Password": "[password]",
+            "Database query": "$$Text.Format('Select TransactionId, [Timestamp],UserId,ItemId, Quantity,[Value], [Location],ProductCategory, 21 as ChurnPeriod from activities WHERE systime < \\'{0:yyyy-MM-dd HH:mm:ss}\\'', WindowEnd)",
+            "Database query1": "select * from users "
+          }
+        },
+        "inputs": [
+          {
+            "name": "AzureSQLDWInputActivityRetrain"
+          },
+          {
+            "name": "AzureSQLDWinputUserRetrain"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "TrainedModelBlob"
+          }
+        ],
+        "policy": {
+          "timeout": "00:50:00",
+          "concurrency": 1,
+          "executionPriorityOrder": "NewestFirst",
+          "retry": 1
+        },
+        "scheduler": {
+          "frequency": "Hour",
+          "interval": 1
+        },
+        "name": "retraining",
+        "linkedServiceName": "AzureMLLinkedServiceTraining"
+      }
+    ],
+    "start": "2016-11-29T00:00:00Z",
+    "end": "2016-11-29T01:00:00Z",
+    "isPaused": true,
+    "pipelineMode": "Scheduled"
+  }
+}
